@@ -32,7 +32,7 @@ func (repo *UserRepository) GetOne(id int64) (models.User, error) {
 }
 
 func (repo *UserRepository) Create(entity *models.User) (models.User, error) {
-	result := repo.DB.Omit("Project").Create(&entity)
+	result := repo.DB.Omit("Projects").Omit("FileContirubions").Create(&entity)
 	if result.Error != nil {
 		return models.User{}, result.Error
 	}

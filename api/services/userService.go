@@ -8,6 +8,7 @@ import (
 type UserService struct {
 	userRepo    repositories.Repository[models.User]
 	projectRepo repositories.Repository[models.Project]
+	fileRepo	repositories.Repository[models.File]
 }
 
 func NewUserService(UserRepo repositories.Repository[models.User], projectRepo repositories.Repository[models.Project]) *UserService {
@@ -27,7 +28,8 @@ func (service *UserService) Create(User *models.User) (models.User, error) {
 	if err != nil {
 		return models.User{}, err
 	}
-	service.UserRepo.(*repositories.UserRepository).DB.Association("Project").Append(&result)
+	service.UserRepo.(*repositories.UserRepository).DB.Association("Projects").Append(&result)
+	service.UserRepo.(*repositories.UserRepository).DB.Association("FileContributions").Append(&result)
 	_ = result
 	return service.UserRepo.Create(User)
 }

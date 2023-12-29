@@ -20,41 +20,49 @@ func main() {
 	projectRepository := repositories.NewProjectRepository(db)
 	userService := services.NewUserService(userRepository)
 	projectService := services.NewProjectService(projectRepository)
+	fileService := services.NewFileService(fileRepository, projectRepository)
 
 	router := gin.Default()
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "running"})
 	})
-	router.GET("/files", func(c *gin.Context) {
-		routes.GetFiles(c, fileRepository)
-	})
-	router.POST("/files", func(c *gin.Context) {
-		routes.CreateFile(c, fileRepository)
-	})
-	router.DELETE("/files/:id", func(c *gin.Context) {
-		routes.DeleteFile(c, fileRepository)
-	})
 
-	router.GET("/users", func(c *gin.Context) {
-		routes.GetUsers(c, userService)
-	})
+	{
+		router.GET("/files", func(c *gin.Context) {
+			routes.GetFiles(c, fileService)
+		})
+		router.POST("/files", func(c *gin.Context) {
+			routes.CreateFile(c, fileService)
+		})
+		router.DELETE("/files/:id", func(c *gin.Context) {
+			routes.DeleteFile(c, fileService)
+		})
+	}
 
-	router.POST("/users", func(c *gin.Context) {
-		routes.CreateUser(c, userService)
-	})
+	{
+		router.GET("/users", func(c *gin.Context) {
+			routes.GetUsers(c, userService)
+		})
 
-	router.GET("/projects", func(c *gin.Context) {
-		routes.GetProjects(c, projectService)
-	})
+		router.POST("/users", func(c *gin.Context) {
+			routes.CreateUser(c, userService)
+		})
+	}
 
-	router.POST("/projects", func(c *gin.Context) {
-		routes.CreateProject(c, projectService)
-	})
+	{
+		router.GET("/projects", func(c *gin.Context) {
+			routes.GetProjects(c, projectService)
+		})
 
-	router.DELETE("/projects/:id", func(c *gin.Context) {
-		routes.DeleteProject(c, projectService)
-	})
+		router.POST("/projects", func(c *gin.Context) {
+			routes.CreateProject(c, projectService)
+		})
+
+		router.DELETE("/projects/:id", func(c *gin.Context) {
+			routes.DeleteProject(c, projectService)
+		})
+	}
 
 	router.Run()
 }

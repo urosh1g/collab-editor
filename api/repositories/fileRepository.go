@@ -15,7 +15,7 @@ func NewFileRepository(db *gorm.DB) Repository[models.File] {
 
 func (repo *FileRepository) GetAll() ([]models.File, error) {
 	var files []models.File
-	result := repo.db.Find(&files)
+	result := repo.db.Joins("Project").Find(&files)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -32,7 +32,8 @@ func (repo *FileRepository) GetOne(id int64) (models.File, error) {
 }
 
 func (repo *FileRepository) Create(entity any) (models.File, error) {
-	result := repo.db.Create(&entity)
+	file := entity.(models.File)
+	result := repo.db.Session(&gorm.Session{FullSaveAssociations: true}).Create(&file)
 	if result.Error != nil {
 		return models.File{}, result.Error
 	}

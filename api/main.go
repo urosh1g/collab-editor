@@ -7,16 +7,17 @@ import (
 	"github.com/urosh1g/collab-editor/models"
 	"github.com/urosh1g/collab-editor/repositories"
 	"github.com/urosh1g/collab-editor/routes"
+	"github.com/urosh1g/collab-editor/services"
 )
 
 func main() {
-
 	config := GetConfig()
 	db := GetDatabase(&config)
 
-	db.AutoMigrate(&models.File{})
+	db.AutoMigrate(&models.File{}, &models.User{}, &models.Project{})
+	userRepository := repositories.NewUserRepository(db)
+	userService := services.NewUserService(userRepository)
 	fileRepository := repositories.NewFileRepository(db)
-	_ = fileRepository
 
 	router := gin.Default()
 
@@ -31,6 +32,14 @@ func main() {
 	})
 	router.DELETE("/files/:id", func(c *gin.Context) {
 		routes.DeleteFile(c, fileRepository)
+	})
+
+	router.GET("/users", func(c *gin.Context) {
+		routes.GetUsers(c, userService)
+	})
+
+	router.POST("/users", func(c *gin.Context) {
+		routes.CreateUser(c, userService)
 	})
 
 	router.Run()

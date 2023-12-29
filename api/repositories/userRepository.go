@@ -5,58 +5,59 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepository struct{
+type UserRepository struct {
 	DB *gorm.DB
 }
 
-func NewUserRepository(DB *gorm.DB) *UserRepository{
-	return &UserRepository{DB}
+func NewUserRepository(db *gorm.DB) Repository[models.User] {
+	return &UserRepository{db}
 }
 
 func (repo *UserRepository) GetAll() ([]models.User, error) {
-	var Users []models.User
-	result := repo.DB.Find(&Users)
-	if result.Error != nil {
+	var users []models.User
+	if result := repo.DB.Find(&users); result.Error != nil {
 		return nil, result.Error
 	}
-	return Users, nil
+	return users, nil
 }
 
 func (repo *UserRepository) GetOne(id int64) (models.User, error) {
-	var User models.User
-	result := repo.DB.First(&User, id)
-	if result.Error != nil {
+	var user models.User
+	if result := repo.DB.First(&user, id); result.Error != nil {
 		return models.User{}, result.Error
 	}
-	return User, nil
+	return user, nil
 }
 
-func (repo *UserRepository) Create(entity *models.User) (models.User, error) {
-	result := repo.DB.Omit("Projects").Omit("FileContirubions").Create(&entity)
-	if result.Error != nil {
+func (repo *UserRepository) Create(newUser any) (models.User, error) {
+	userRequest := newUser.(models.CreateUserRequest)
+	user := models.User{
+		Username: userRequest.Username,
+		Files:    nil,
+		Projects: nil,
+	}
+	if result := repo.DB.Create(&user); result.Error != nil {
 		return models.User{}, result.Error
 	}
-	return *entity, nil
+	return user, nil
 }
 
-func (repo *UserRepository) Update(id int64, entity *models.User) (models.User, error) {
-	result := repo.DB.Save(entity)
+func (repo *UserRepository) Update(id int64, entity any) (models.User, error) {
+    user := entity.(models.User)
+	result := repo.DB.Save(user)
 	if result.Error != nil {
 		return models.User{}, result.Error
 	}
-	return *entity, nil
+	return user, nil
 }
 
 func (repo *UserRepository) Delete(id int64) (models.User, error) {
-	var User models.User
-	result := repo.DB.First(&User, id)
-	if result.Error != nil {
-		return models.User{}, result.Error
+	result, err := repo.GetOne(id)
+	if err != nil {
+		return models.User{}, err
 	}
-
-	result = repo.DB.Delete(&models.User{}, id)
-	if result.Error != nil {
-		return models.User{}, result.Error
+	if res := repo.DB.Delete(&result, id); res.Error != nil {
+		return models.User{}, err
 	}
-	return User, nil
+	return result, nil
 }

@@ -4,7 +4,11 @@ import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
-	Username          string    `json:"username"`
-	Projects          []Project `json:"projects" gorm:"many2many:project_users;"`
-	FileContributions []File    `json:"fileContributions" gorm:"many2many:file_contributors"`
+	Username string     `json:"username"`
+	Projects []*Project `json:"projects,omitempty" gorm:"many2many:project_users"`
+	Files    []*File    `json:"files,omitempty" gorm:"many2many:user_files"`
+}
+
+type CreateUserRequest struct {
+	Username string `json:"username" binding:"required"`
 }

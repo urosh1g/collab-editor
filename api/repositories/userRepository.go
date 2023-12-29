@@ -42,12 +42,13 @@ func (repo *UserRepository) Create(newUser any) (models.User, error) {
 	return user, nil
 }
 
-func (repo *UserRepository) Update(id int64, entity *models.User) (models.User, error) {
-	result := repo.DB.Save(entity)
+func (repo *UserRepository) Update(id int64, entity any) (models.User, error) {
+    user := entity.(models.User)
+	result := repo.DB.Save(user)
 	if result.Error != nil {
 		return models.User{}, result.Error
 	}
-	return *entity, nil
+	return user, nil
 }
 
 func (repo *UserRepository) Delete(id int64) (models.User, error) {

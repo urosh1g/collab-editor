@@ -15,9 +15,11 @@ func main() {
 	db := GetDatabase(&config)
 
 	db.AutoMigrate(&models.File{}, &models.User{}, &models.Project{})
-	userRepository := repositories.NewUserRepository(db)
-	userService := services.NewUserService(userRepository)
 	fileRepository := repositories.NewFileRepository(db)
+	userRepository := repositories.NewUserRepository(db)
+	projectRepository := repositories.NewProjectRepository(db)
+	userService := services.NewUserService(userRepository)
+	projectService := services.NewProjectService(projectRepository)
 
 	router := gin.Default()
 
@@ -40,6 +42,18 @@ func main() {
 
 	router.POST("/users", func(c *gin.Context) {
 		routes.CreateUser(c, userService)
+	})
+
+	router.GET("/projects", func(c *gin.Context) {
+		routes.GetProjects(c, projectService)
+	})
+
+	router.POST("/projects", func(c *gin.Context) {
+		routes.CreateProject(c, projectService)
+	})
+
+	router.DELETE("/projects/:id", func(c *gin.Context) {
+		routes.DeleteProject(c, projectService)
 	})
 
 	router.Run()

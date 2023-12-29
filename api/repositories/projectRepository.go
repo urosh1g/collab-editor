@@ -14,15 +14,27 @@ func NewProjectRepository(db *gorm.DB) Repository[models.Project] {
 }
 
 func (repo *ProjectRepository) GetAll() ([]models.Project, error) {
-	return nil, nil
+	var projects []models.Project
+	if result := repo.DB.Find(&projects); result.Error != nil {
+		return nil, result.Error
+	}
+	return projects, nil
 }
 
 func (repo *ProjectRepository) GetOne(id int64) (models.Project, error) {
-	return models.Project{}, nil
+	var project models.Project
+	if result := repo.DB.First(&project, id); result.Error != nil {
+		return models.Project{}, result.Error
+	}
+	return project, nil
 }
 
 func (repo *ProjectRepository) Create(project any) (models.Project, error) {
-	return models.Project{}, nil
+	proj := project.(models.Project)
+	if result := repo.DB.Create(&proj); result.Error != nil {
+		return models.Project{}, result.Error
+	}
+	return proj, nil
 }
 
 func (repo *ProjectRepository) Update(id int64, project any) (models.Project, error) {
@@ -30,5 +42,12 @@ func (repo *ProjectRepository) Update(id int64, project any) (models.Project, er
 }
 
 func (repo *ProjectRepository) Delete(id int64) (models.Project, error) {
-	return models.Project{}, nil
+	project, err := repo.GetOne(id)
+	if err != nil {
+		return models.Project{}, err
+	}
+	if result := repo.DB.Delete(&project, id); result.Error != nil {
+		return models.Project{}, err
+	}
+	return project, nil
 }

@@ -1,35 +1,35 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/urosh1g/collab-editor/models"
 	"github.com/urosh1g/collab-editor/repositories"
 )
 
 type UserService struct {
-	userRepo    repositories.Repository[models.User]
-	projectRepo repositories.Repository[models.Project]
-	fileRepo	repositories.Repository[models.File]
+	UserRepository repositories.Repository[models.User]
 }
 
-func NewUserService(UserRepo repositories.Repository[models.User], projectRepo repositories.Repository[models.Project]) *UserService {
-	return &UserService{UserRepo, projectRepo}
+func NewUserService(userRepo repositories.Repository[models.User]) *UserService {
+	return &UserService{userRepo}
 }
 
 func (service *UserService) GetAll() ([]models.User, error) {
-	return service.UserRepo.GetAll()
+	return service.UserRepository.GetAll()
 }
 
 func (service *UserService) GetOne(id int64) (models.User, error) {
-	return service.UserRepo.GetOne(id)
+	return service.UserRepository.GetOne(id)
 }
 
-func (service *UserService) Create(User *models.User) (models.User, error) {
-	result, err := service.projectRepo.GetOne(User.ProjectID)
-	if err != nil {
-		return models.User{}, err
+func (service *UserService) Create(userRequest models.CreateUserRequest) (models.User, error) {
+	if userRequest.Username == "" {
+		return models.User{}, errors.New("username is required")
 	}
-	service.UserRepo.(*repositories.UserRepository).DB.Association("Projects").Append(&result)
-	service.UserRepo.(*repositories.UserRepository).DB.Association("FileContributions").Append(&result)
-	_ = result
-	return service.UserRepo.Create(User)
+	return service.UserRepository.Create(userRequest)
+}
+
+func (service *UserService) Delete(id int64) (models.User, error) {
+	return service.UserRepository.Delete(id)
 }

@@ -1,6 +1,5 @@
 package repositories
 
-// TODO: somehow constrain `any` to CreateDto<T> | UpdateDto<T>
 type Repository[T any] interface {
 	GetAll() ([]T, error)
 	GetOne(id int64) (T, error)

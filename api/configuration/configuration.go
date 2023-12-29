@@ -1,16 +1,17 @@
-package main
+package configuration
 
 import (
 	"fmt"
+
 	"github.com/spf13/viper"
 )
 
 type DbConfig struct {
-	DBHost string `mapstructure:"DB_HOST"`
-	DBPort int16    `mapstructure:"DB_PORT"`
-	DBName string `mapstructure:"DB_NAME"`
+	DBHost     string `mapstructure:"DB_HOST"`
+	DBName     string `mapstructure:"DB_NAME"`
 	DBUsername string `mapstructure:"DB_USER"`
 	DBPassword string `mapstructure:"DB_PASS"`
+	DBPort     int16  `mapstructure:"DB_PORT"`
 }
 
 func (config DbConfig) GetDSN() string {

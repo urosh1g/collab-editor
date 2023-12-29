@@ -2,14 +2,24 @@ package routes
 
 import (
 	"fmt"
-    "strconv"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/urosh1g/collab-editor/models"
-	"github.com/urosh1g/collab-editor/services"
 	"github.com/urosh1g/collab-editor/repositories"
+	"github.com/urosh1g/collab-editor/services"
 )
+
+func InitUserRoutes(router *gin.Engine) {
+	userGroup := router.Group("/users")
+	userGroup.GET("", func(c *gin.Context) {
+		GetUsers(c, services.UsersService)
+	})
+	userGroup.POST("", func(c *gin.Context) {
+		CreateUser(c, services.UsersService)
+	})
+}
 
 func GetUsers(c *gin.Context, service *services.UserService) {
 	users, err := service.GetAll()

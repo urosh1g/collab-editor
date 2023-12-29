@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"fmt"
@@ -6,13 +6,21 @@ import (
 	"os"
 	"time"
 
+	"github.com/urosh1g/collab-editor/configuration"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"gorm.io/gorm/logger"
 )
 
-func GetDatabase(config *DbConfig) *gorm.DB {
+var Db *gorm.DB
+
+func init() {
+	config := configuration.GetConfig()
+	Db = GetDatabase(&config)
+}
+
+func GetDatabase(config *configuration.DbConfig) *gorm.DB {
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{

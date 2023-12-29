@@ -10,6 +10,21 @@ import (
 	"github.com/urosh1g/collab-editor/services"
 )
 
+func InitProjectRoutes(router *gin.Engine) {
+	projectGroup := router.Group("/projects")
+	projectGroup.GET("", func(c *gin.Context) {
+		GetProjects(c, services.ProjectsService)
+	})
+
+	projectGroup.POST("", func(c *gin.Context) {
+		CreateProject(c, services.ProjectsService)
+	})
+
+	projectGroup.DELETE("/:id", func(c *gin.Context) {
+		DeleteProject(c, services.ProjectsService)
+	})
+}
+
 func GetProjects(c *gin.Context, service *services.ProjectService) {
 	projects, err := service.GetAll()
 	if err != nil {

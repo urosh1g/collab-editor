@@ -9,6 +9,19 @@ import (
 	"github.com/urosh1g/collab-editor/services"
 )
 
+func InitFileRoutes(router *gin.Engine) {
+	fileGroup := router.Group("/files")
+	fileGroup.GET("", func(c *gin.Context) {
+		GetFiles(c, services.FilesService)
+	})
+	fileGroup.POST("", func(c *gin.Context) {
+		CreateFile(c, services.FilesService)
+	})
+	fileGroup.DELETE("/:id", func(c *gin.Context) {
+		DeleteFile(c, services.FilesService)
+	})
+}
+
 func GetFiles(c *gin.Context, service *services.FileService) {
 	result, err := service.GetAll()
 	if err != nil {

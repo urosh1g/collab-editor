@@ -9,7 +9,7 @@ type FileRepository struct {
 	db *gorm.DB
 }
 
-func NewFileRepository(db *gorm.DB) *FileRepository {
+func NewFileRepository(db *gorm.DB) Repository[models.File] {
 	return &FileRepository{db}
 }
 
@@ -31,20 +31,20 @@ func (repo *FileRepository) GetOne(id int64) (models.File, error) {
 	return file, nil
 }
 
-func (repo *FileRepository) Create(entity *models.File) (models.File, error) {
+func (repo *FileRepository) Create(entity any) (models.File, error) {
 	result := repo.db.Create(&entity)
 	if result.Error != nil {
 		return models.File{}, result.Error
 	}
-	return *entity, nil
+	return entity.(models.File), nil
 }
 
-func (repo *FileRepository) Update(id int64, entity *models.File) (models.File, error) {
+func (repo *FileRepository) Update(id int64, entity any) (models.File, error) {
 	result := repo.db.Save(entity)
 	if result.Error != nil {
 		return models.File{}, result.Error
 	}
-	return *entity, nil
+	return entity.(models.File), nil
 }
 
 func (repo *FileRepository) Delete(id int64) (models.File, error) {

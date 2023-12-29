@@ -8,3 +8,7 @@ type User struct {
 	Projects []*Project `json:"projects,omitempty" gorm:"many2many:project_users"`
 	Files    []*File    `json:"files,omitempty" gorm:"many2many:user_files"`
 }
+
+type CreateUserRequest struct {
+	Username string `json:"username" binding:"required"`
+}

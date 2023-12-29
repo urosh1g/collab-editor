@@ -1,66 +1,50 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"github.com/urosh1g/collab-editor/database"
 	"github.com/urosh1g/collab-editor/models"
-	"github.com/urosh1g/collab-editor/repositories"
 	"github.com/urosh1g/collab-editor/routes"
 	"github.com/urosh1g/collab-editor/services"
 )
 
 func main() {
-	config := GetConfig()
-	db := GetDatabase(&config)
-
-	db.AutoMigrate(&models.File{}, &models.User{}, &models.Project{})
-	fileRepository := repositories.NewFileRepository(db)
-	userRepository := repositories.NewUserRepository(db)
-	projectRepository := repositories.NewProjectRepository(db)
-	userService := services.NewUserService(userRepository)
-	projectService := services.NewProjectService(projectRepository)
-	fileService := services.NewFileService(fileRepository, projectRepository)
-
+	database.Db.AutoMigrate(&models.File{}, &models.User{}, &models.Project{})
 	router := gin.Default()
-
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "running"})
-	})
 
 	{
 		router.GET("/files", func(c *gin.Context) {
-			routes.GetFiles(c, fileService)
+			routes.GetFiles(c, services.FilesService)
 		})
 		router.POST("/files", func(c *gin.Context) {
-			routes.CreateFile(c, fileService)
+			routes.CreateFile(c, services.FilesService)
 		})
 		router.DELETE("/files/:id", func(c *gin.Context) {
-			routes.DeleteFile(c, fileService)
+			routes.DeleteFile(c, services.FilesService)
 		})
 	}
 
 	{
 		router.GET("/users", func(c *gin.Context) {
-			routes.GetUsers(c, userService)
+			routes.GetUsers(c, services.UsersService)
 		})
 
 		router.POST("/users", func(c *gin.Context) {
-			routes.CreateUser(c, userService)
+			routes.CreateUser(c, services.UsersService)
 		})
 	}
 
 	{
 		router.GET("/projects", func(c *gin.Context) {
-			routes.GetProjects(c, projectService)
+			routes.GetProjects(c, services.ProjectsService)
 		})
 
 		router.POST("/projects", func(c *gin.Context) {
-			routes.CreateProject(c, projectService)
+			routes.CreateProject(c, services.ProjectsService)
 		})
 
 		router.DELETE("/projects/:id", func(c *gin.Context) {
-			routes.DeleteProject(c, projectService)
+			routes.DeleteProject(c, services.ProjectsService)
 		})
 	}
 
